@@ -31,7 +31,10 @@ public class Main extends Application {
 
     public static void main(String[] args) throws IOException {
     //    Shell.boot();
-        launch(args);
+        launch(args) ;
+
+
+
     }
 
     public static void clearTerminal() {
