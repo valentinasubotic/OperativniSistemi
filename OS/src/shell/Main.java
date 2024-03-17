@@ -55,11 +55,11 @@ public class Main extends Application {
         inp.connect(out);
         textToShow = "";
 
-        close = new Button("X") ;
-        close.setPrefSize(5, 5) ;
-        minimize = new Button("_") ;
-        minimize.setPrefSize(5, 5) ;
-        maximize = new Button("❐") ;
+        close = new Button("X");
+        close.setPrefSize(5, 5);
+        minimize = new Button("_");
+        minimize.setPrefSize(5, 5);
+        maximize = new Button("❐");
 
         HBox buttons = new HBox(5);
         buttons.setAlignment(Pos.TOP_RIGHT);
