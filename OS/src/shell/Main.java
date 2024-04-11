@@ -141,6 +141,8 @@ public class Main extends Application {
             }
         };
 
+
+
         //ShellCommands.setOut(outStream);
 
         VBox root = new VBox(15);
