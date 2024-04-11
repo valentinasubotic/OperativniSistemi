@@ -1,5 +1,5 @@
 package shell;
-
+//komentar prije importa
 import java.io.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -14,7 +14,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-//komentar poslije importa
+
 public class Main extends Application {
     private static String textToShow;
     private static TextArea top = new TextArea();
