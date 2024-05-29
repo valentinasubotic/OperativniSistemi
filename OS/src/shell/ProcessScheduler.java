@@ -1,69 +1,67 @@
 package shell;
 
-public class Process {
-    // Ime procesa
-    private String name;
-    // Vrijeme potrebno za izvršenje procesa
-    private int executionTime;
-    // Memorijski zahtjev procesa
-    private int memoryRequirement;
-    // Stanje procesa
-    private State state;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-    // Enumeracija za stanja procesa
-    public enum State {
-        READY,    // Proces je spreman za izvršenje
-        RUNNING,  // Proces se trenutno izvršava
-        DONE      // Proces je završen
+public class ProcessScheduler {
+    // Red spremnih procesa
+    private Queue<Process> readyQueue;
+    // Lista završenih procesa
+    private List<Process> completedProcesses;
+    // Trenutno izvršavani proces
+    private Process currentRunningProcess;
+
+    // Konstruktor koji inicijalizuje red spremnih procesa i listu završenih procesa
+    public ProcessScheduler() {
+        readyQueue = new ConcurrentLinkedQueue<>();
+        completedProcesses = new ArrayList<>();
     }
 
-    // Konstruktor koji inicijalizuje proces sa imenom, vremenom izvršenja i memorijskim zahtevom
-    public Process(String name, int executionTime, int memoryRequirement) {
-        this.name = name;
-        this.executionTime = executionTime;
-        this.memoryRequirement = memoryRequirement;
-        this.state = State.READY; // Inicijalno stanje procesa je READY (spreman)
+    // Metoda za dodavanje procesa u red spremnih procesa
+    public void addProcess(Process process) {
+        readyQueue.add(process);
     }
 
-    // Metoda koja vraća ime procesa
-    public String getName() {
-        return name;
+    // Metoda koja vraća listu procesa u redu spremnih procesa
+    public List<Process> getProcessesInQueue() {
+        return new ArrayList<>(readyQueue);
     }
 
-    // Metoda koja vraća vrijeme potrebno za izvršenje procesa
-    public int getExecutionTime() {
-        return executionTime;
+    // Metoda koja vraća trenutno izvršavani proces
+    public Process getCurrentRunningProcess() {
+        return currentRunningProcess;
     }
 
-    // Metoda koja vraća memorijski zahtjev procesa
-    public int getMemoryRequirement() {
-        return memoryRequirement;
-    }
+    // Metoda koja pokreće raspoređivač procesa
+    public void runScheduler() {
+        while (true) { // Beskonačna petlja za stalno pokretanje raspoređivača
+            if (!readyQueue.isEmpty()) { // Proverava da li red spremnih procesa nije prazan
+                Process currentProcess = readyQueue.poll(); // Uklanja i dobija prvi proces iz reda
+                currentRunningProcess = currentProcess; // Postavlja trenutni proces kao trenutno izvršavani
 
-    // Metoda koja vraća trenutno stanje procesa
-    public State getState() {
-        return state;
-    }
+                while (!currentProcess.isCompleted()) { // Dok se trenutni proces ne završi
+                    currentProcess.execute(1); // Izvršava proces za 1 vremenski jedinicu
+                    System.out.println(currentProcess.getName()); // Ispisuje ime trenutnog procesa
 
-    // Metoda koja postavlja stanje procesa
-    public void setState(State state) {
-        this.state = state;
-    }
+                    try {
+                        Thread.sleep(1000); // Pauzira izvršenje na 1 sekundu da simulira vrijeme izvršenja
+                    } catch (InterruptedException e) {
+                        e.printStackTrace(); // Štampa stack trace u slučaju izuzetka
+                    }
+                }
 
-    // Metoda koja simulira izvršenje procesa za određeno vreme
-    public void execute(int time) {
-        executionTime -= time; // Smanjuje preostalo vrijeme izvršenja za zadato vrijeme
+                System.out.println(currentProcess.getName() + " DONE"); // Ispisuje da je proces završen
 
-        // Ako je preostalo vrijeme izvršenja manje ili jednako nuli, proces je završen
-        if (executionTime <= 0) {
-            state = State.DONE; // Postavlja stanje procesa na DONE
-        } else {
-            state = State.RUNNING; // Inače, proces prelazi u stanje RUNNING
+                completedProcesses.add(currentProcess); // Dodaje završen proces u listu završenih procesa
+                currentRunningProcess = null; // Postavlja trenutno izvršavani proces na null
+            }
         }
     }
 
-    // Metoda koja proverava da li je proces završen
-    public boolean isCompleted() {
-        return state == State.DONE;
+    // Metoda koja vraća listu završenih procesa
+    public List<Process> getCompletedProcesses() {
+        return completedProcesses;
     }
 }
