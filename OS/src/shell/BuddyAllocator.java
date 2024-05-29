@@ -66,7 +66,7 @@ public class BuddyAllocator {
 
             block = parent;  // Ažuriramo trenutni blok na manji blok
         }
-        freeList.remove(block);  // Uklanjanje deljenog bloka iz liste slobodnih blokova
+        freeList.remove(block);  // Uklanjanje dijeljenog bloka iz liste slobodnih blokova
     }
 
     // Privatna metoda za spajanje bloka sa njegovim buddy blokom
