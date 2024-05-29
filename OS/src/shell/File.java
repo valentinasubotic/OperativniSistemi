@@ -43,7 +43,8 @@ public class File {
     }
 
     // Setter za listu alokovanih blokova
-    public void setAllocatedBlocks(List<Block> allocatedBlocks) {
+    public void setAllocatedBlocks(List<Block> allocatedBlocks)
+    {
         this.allocatedBlocks = allocatedBlocks;
     }
 
