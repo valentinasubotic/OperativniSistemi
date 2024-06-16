@@ -6,16 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Assembler {
     private Map<String, Integer> symbolTable;
     private Map<String, String> opcodeTable;
+    private String currentDirectory;  // Dodajemo promenljivu za čuvanje trenutnog radnog direktorijuma
 
     public Assembler() {
         symbolTable = new HashMap<>();
         opcodeTable = new HashMap<>();
         initializeOpcodeTable();
+        currentDirectory = System.getProperty("user.dir");  // Postavljamo početni direktorijum na radni direktorijum korisnika
     }
 
     private void initializeOpcodeTable() {
@@ -76,136 +77,124 @@ public class Assembler {
         }
     }
 
-    // Glavna funkcija za pokretanje komandne linije
-    public static void main(String[] args) {
-        Assembler assembler = new Assembler();
-        CommandLineInterface cli = new CommandLineInterface();
-        cli.run();
-    }
-}
-
-class CommandLineInterface {
-    private String currentDirectory = System.getProperty("user.dir");
-    private boolean running = true;
-
-    public void run() {
-        Scanner scanner = new Scanner(System.in);
-
-        while (running) {
-            System.out.print(currentDirectory + " > ");
-            String command = scanner.nextLine().trim();
-            processCommand(command);
-        }
-
-        scanner.close();
-    }
-
-    private void processCommand(String command) {
+    // Metoda za procesiranje korisničkih komandi
+    public String processCommand(String command) {
         String[] parts = command.split("\\s+");
         String cmd = parts[0];
+        StringBuilder output = new StringBuilder();
 
         switch (cmd) {
             case "cd":
                 if (parts.length > 1) {
-                    changeDirectory(parts[1]);
+                    output.append(changeDirectory(parts[1]));
                 } else {
-                    System.out.println("Nedostaje argument za cd komandu.");
+                    output.append("Nedostaje argument za cd komandu.");
                 }
                 break;
             case "dir":
-                listDirectory();
+                output.append(listDirectory());
                 break;
             case "ps":
-                listProcesses();
+                output.append(listProcesses());
                 break;
             case "mkdir":
                 if (parts.length > 1) {
-                    createDirectory(parts[1]);
+                    output.append(createDirectory(parts[1]));
                 } else {
-                    System.out.println("Nedostaje argument za mkdir komandu.");
+                    output.append("Nedostaje argument za mkdir komandu.");
                 }
                 break;
             case "run":
                 if (parts.length > 1) {
-                    runProcess(parts[1]);
+                    output.append(runProcess(parts[1]));
+
                 } else {
-                    System.out.println("Nedostaje argument za run komandu.");
+                    output.append("Nedostaje argument za run komandu.");
                 }
                 break;
             case "mem":
-                showMemoryUsage();
+                output.append(showMemoryUsage());
                 break;
             case "exit":
-                exitOS();
+                output.append(exitOS());
                 break;
             case "rm":
                 if (parts.length > 1) {
-                    removeFileOrDirectory(parts[1]);
+                    output.append(removeFileOrDirectory(parts[1]));
                 } else {
-                    System.out.println("Nedostaje argument za rm komandu.");
+                    output.append("Nedostaje argument za rm komandu.");
                 }
                 break;
             default:
-                System.out.println("Nepoznata komanda: " + cmd);
+                output.append("Nepoznata komanda: ").append(cmd);
                 break;
         }
+
+        return output.toString();
     }
 
-    private void changeDirectory(String path) {
+    private String changeDirectory(String path) {
         File dir = new File(currentDirectory, path);
         if (dir.exists() && dir.isDirectory()) {
             currentDirectory = dir.getAbsolutePath();
+            return "Promenjen direktorijum na: " + currentDirectory;
         } else {
-            System.out.println("Direktorijum ne postoji: " + path);
+            return "Direktorijum ne postoji: " + path;
         }
     }
 
-    private void listDirectory() {
+    private String listDirectory() {
         File dir = new File(currentDirectory);
         File[] files = dir.listFiles();
+        StringBuilder output = new StringBuilder();
 
         if (files != null) {
             for (File file : files) {
-                System.out.println(file.getName());
+                output.append(file.getName()).append("\n");
             }
         }
+        return output.toString();
     }
 
-    private void listProcesses() {
+    private String listProcesses() {
         // Ispisivanje lažnih informacija o procesima kao primer
-        System.out.println("PID\tInstrukcija\tRAM\tIzvršene Instrukcije");
-        System.out.println("1\tLOAD\t\t1024KB\t100");
-        System.out.println("2\tADD\t\t512KB\t50");
-        System.out.println("3\tSTORE\t\t2048KB\t200");
+        StringBuilder output = new StringBuilder();
+        // output.append("PID\tInstrukcija\tRAM\tIzvršene Instrukcije\n");
+        //   output.append("1\tLOAD\t\t1024KB\t100\n");
+//output.append("2\tADD\t\t512KB\t50\n");
+        //  output.append("3\tSTORE\t\t2048KB\t200\n");
+        return output.toString();
     }
 
-    private void createDirectory(String name) {
+    private String createDirectory(String name) {
         File dir = new File(currentDirectory, name);
         if (dir.mkdir()) {
-            System.out.println("Direktorijum je napravljen: " + name);
+            return "Direktorijum je napravljen: " + name;
         } else {
-            System.out.println("Neuspešno pravljenje direktorijuma: " + name);
+            return "Neuspešno pravljenje direktorijuma: " + name;
         }
     }
 
-    private void runProcess(String program) {
+    private String runProcess(String program) {
         // Ova metoda bi pokretala proces, ovde je samo kao primer
-        System.out.println("Pokretanje procesa: " + program);
+        return "Pokretanje procesa: " + program;
     }
 
-    private void showMemoryUsage() {
+    private String showMemoryUsage() {
         // Ispisivanje lažnih podataka o RAM memoriji kao primer
-        System.out.println("Ukupna RAM: 8192KB");
-        System.out.println("Zauzeta RAM: 4096KB");
-        System.out.println("Slobodna RAM: 4096KB");
+        StringBuilder output = new StringBuilder();
+        output.append("Ukupna RAM: 8192KB\n");
+        output.append("Zauzeta RAM: 4096KB\n");
+        output.append("Slobodna RAM: 4096KB\n");
+        return output.toString();
     }
 
-    private void exitOS() {
-        running = false;
-        System.out.println("Gašenje OS-a...");
+    private String exitOS() {
+        System.exit(0);
+        return "Gašenje OS-a...";
     }
 
-    private void removeFileOrDirectory(String name) {
+    private String removeFileOrDirectory(String name) {
         File file = new File(currentDirectory, name);
         if (file.exists()) {
             try {
@@ -217,12 +206,12 @@ class CommandLineInterface {
                 } else {
                     file.delete();
                 }
-                System.out.println("Uspješno uklonjen: " + name);
+                return "Uspješno uklonjen: " + name;
             } catch (IOException e) {
-                System.out.println("Greška pri uklanjanju: " + name);
+                return "Greška pri uklanjanju: " + name;
             }
         } else {
-            System.out.println("Fajl ili direktorijum ne postoji: " + name);
+            return "Fajl ili direktorijum ne postoji: " + name;
         }
     }
 }

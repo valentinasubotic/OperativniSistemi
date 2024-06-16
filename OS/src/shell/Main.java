@@ -28,14 +28,16 @@ public class Main extends Application {
     private OutputStream outStream;
     private int len = 0;
 
+
+
+
     public static void main(String[] args) throws IOException {
         // Testiranje Assembler klase
         Assembler assembler = new Assembler();
         String sourceCode = "LOAD 10\nADD 20\nSTORE 30\nHALT\n";
         String machineCode = assembler.assemble(sourceCode);
-        System.out.println("Testiranje assemblera");
         System.out.println(machineCode);  // Ispis mašinskog koda
-    //    Shell.boot();
+        //    Shell.boot();
         launch(args);
 
 
@@ -54,6 +56,7 @@ public class Main extends Application {
         }
     }
 
+    private Assembler assembler = new Assembler();
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -99,23 +102,12 @@ public class Main extends Application {
         });
 
         bottom.setOnAction(e -> {
-            try {
-                byte array[] = bottom.getText().getBytes();
-                out.write(array);
-                len = array.length;
 
-                //ShellCommands.readACommand(inp, len);
 
-                textToShow += ">" + bottom.getText() + "\n";
-                top.appendText(textToShow);
-                //ShellCommands.returnCommand();
-
-                bottom.clear();
-                textToShow = "";
-
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            String command = bottom.getText();
+            String result = assembler.processCommand(command);
+            top.appendText("> " + command + "\n" + result + "\n");
+            bottom.clear();
         });
 
 /*
