@@ -1,5 +1,4 @@
 package shell;
-//komentar prije importa
 import java.io.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -57,6 +56,12 @@ public class Main extends Application {
     }
 
     private Assembler assembler = new Assembler();
+
+
+    FileSystem fileSystem = new FileSystem();
+
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
