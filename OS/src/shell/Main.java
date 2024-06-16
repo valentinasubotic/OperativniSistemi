@@ -28,14 +28,12 @@ public class Main extends Application {
     private OutputStream outStream;
     private int len = 0;
 
-
-
-
     public static void main(String[] args) throws IOException {
         // Testiranje Assembler klase
         Assembler assembler = new Assembler();
         String sourceCode = "LOAD 10\nADD 20\nSTORE 30\nHALT\n";
         String machineCode = assembler.assemble(sourceCode);
+        System.out.println("Testiranje assemblera");
         System.out.println(machineCode);  // Ispis mašinskog koda
     //    Shell.boot();
         launch(args);
