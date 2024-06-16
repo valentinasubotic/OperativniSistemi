@@ -32,6 +32,11 @@ public class Main extends Application {
 
 
     public static void main(String[] args) throws IOException {
+        // Testiranje Assembler klase
+        Assembler assembler = new Assembler();
+        String sourceCode = "LOAD 10\nADD 20\nSTORE 30\nHALT\n";
+        String machineCode = assembler.assemble(sourceCode);
+        System.out.println(machineCode);  // Ispis mašinskog koda
     //    Shell.boot();
         launch(args);
 
@@ -115,7 +120,7 @@ public class Main extends Application {
             }
         });
 
-        /*
+/*
         bottom.setOnKeyPressed((e) -> {
             if (e.getCode().equals(KeyCode.UP)) {
                 String last = ShellCommands.previous();
@@ -133,7 +138,7 @@ public class Main extends Application {
                 e.consume();
             }
         });
-        */
+*/
 
         outStream = new OutputStream() {
             public void write(int b) throws IOException {
@@ -161,3 +166,4 @@ public class Main extends Application {
         bottom.requestFocus();
     }
 }
+
