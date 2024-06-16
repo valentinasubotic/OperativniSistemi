@@ -59,6 +59,8 @@ public class Main extends Application {
 
 
     FileSystem fileSystem = new FileSystem();
+    FileSystemOrganization root = fileSystem.getRoot();
+
 
 
 
