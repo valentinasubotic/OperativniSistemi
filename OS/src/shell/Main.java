@@ -27,9 +27,6 @@ public class Main extends Application {
     private OutputStream outStream;
     private int len = 0;
 
-
-
-
     public static void main(String[] args) throws IOException {
         // Testiranje Assembler klase
         Assembler assembler = new Assembler();
@@ -38,9 +35,6 @@ public class Main extends Application {
         System.out.println(machineCode);  // Ispis mašinskog koda
         //    Shell.boot();
         launch(args);
-
-
-
     }
 
     public static void clearTerminal() {
@@ -56,15 +50,6 @@ public class Main extends Application {
     }
 
     private Assembler assembler = new Assembler();
-
-
-    FileSystem fileSystem = new FileSystem();
-    FileSystemOrganization root = fileSystem.getRoot();
-    FileSystemOrganization currentDirectory = fileSystem.getRoot();
-    ProcessScheduler scheduler = new ProcessScheduler();
-
-
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {

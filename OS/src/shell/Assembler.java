@@ -10,13 +10,21 @@ import java.util.Map;
 public class Assembler {
     private Map<String, Integer> symbolTable;
     private Map<String, String> opcodeTable;
-    private String currentDirectory;  // Dodajemo promenljivu za čuvanje trenutnog radnog direktorijuma
+
+    FileSystem fileSystem;
+    FileSystemOrganization root;
+    // Dodajemo promenljivu za čuvanje trenutnog radnog direktorijuma
+    FileSystemOrganization currentDirectory;
+    ProcessScheduler scheduler = new ProcessScheduler();
 
     public Assembler() {
         symbolTable = new HashMap<>();
         opcodeTable = new HashMap<>();
         initializeOpcodeTable();
-        currentDirectory = System.getProperty("user.dir");  // Postavljamo početni direktorijum na radni direktorijum korisnika
+        fileSystem = new FileSystem();
+        // Postavljamo početni direktorijum na radni direktorijum korisnika
+        root = fileSystem.getRoot();
+        currentDirectory = fileSystem.getRoot();
     }
 
     private void initializeOpcodeTable() {
@@ -82,7 +90,7 @@ public class Assembler {
         String[] parts = command.split("\\s+");
         String cmd = parts[0];
         StringBuilder output = new StringBuilder();
-
+        /*
         switch (cmd) {
             case "cd":
                 if (parts.length > 1) {
@@ -129,10 +137,10 @@ public class Assembler {
                 output.append("Nepoznata komanda: ").append(cmd);
                 break;
         }
-
+        */
         return output.toString();
     }
-
+    /*
     private String changeDirectory(String path) {
         File dir = new File(currentDirectory, path);
         if (dir.exists() && dir.isDirectory()) {
@@ -142,7 +150,8 @@ public class Assembler {
             return "Direktorijum ne postoji: " + path;
         }
     }
-
+    */
+    /*
     private String listDirectory() {
         File dir = new File(currentDirectory);
         File[] files = dir.listFiles();
@@ -159,9 +168,9 @@ public class Assembler {
     private String listProcesses() {
         // Ispisivanje lažnih informacija o procesima kao primer
         StringBuilder output = new StringBuilder();
-        // output.append("PID\tInstrukcija\tRAM\tIzvršene Instrukcije\n");
-        //   output.append("1\tLOAD\t\t1024KB\t100\n");
-//output.append("2\tADD\t\t512KB\t50\n");
+        //  output.append("PID\tInstrukcija\tRAM\tIzvršene Instrukcije\n");
+        //  output.append("1\tLOAD\t\t1024KB\t100\n");
+        //  output.append("2\tADD\t\t512KB\t50\n");
         //  output.append("3\tSTORE\t\t2048KB\t200\n");
         return output.toString();
     }
@@ -174,7 +183,7 @@ public class Assembler {
             return "Neuspešno pravljenje direktorijuma: " + name;
         }
     }
-
+    */
     private String runProcess(String program) {
         // Ova metoda bi pokretala proces, ovde je samo kao primer
         return "Pokretanje procesa: " + program;
@@ -193,7 +202,7 @@ public class Assembler {
         System.exit(0);
         return "Gašenje OS-a...";
     }
-
+    /*
     private String removeFileOrDirectory(String name) {
         File file = new File(currentDirectory, name);
         if (file.exists()) {
@@ -214,4 +223,5 @@ public class Assembler {
             return "Fajl ili direktorijum ne postoji: " + name;
         }
     }
+     */
 }

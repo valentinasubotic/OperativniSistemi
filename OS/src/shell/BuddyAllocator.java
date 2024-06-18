@@ -51,8 +51,6 @@ public class BuddyAllocator {
             buddy.setBuddy(block);
             block.setBuddy(buddy);
 
-
-
             // Kreiramo novi blok sa smanjenom veličinom umesto da menjamo postojeći
             Block parent = new Block(block.getStartAddress(), newSize);
             parent.setBuddy(buddy);

@@ -59,8 +59,6 @@ public class Block {
     public void setParent(Block parent) {
         this.parent = parent;
     }
-
-
 }
 
 
