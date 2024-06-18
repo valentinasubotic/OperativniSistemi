@@ -18,7 +18,7 @@ public class BuddyAllocator {
     }
     /*
 
-    // Metoda za alokaciju bloka memorije određene veličine
+    // Metoda za alokaciju bloka memorije određene veličine (stara metoda prije touch)
     public Block allocate(int sizeInMB) {
         Block block = findFreeBlock(sizeInMB);  // Pronalazak slobodnog bloka odgovarajuće veličine
         if (block != null) {
@@ -28,8 +28,6 @@ public class BuddyAllocator {
         }
         return block;  // Vraćanje alociranog bloka (ili null ako nije moguće)
     }
-
-
      */
 
     public List<Block> allocate(int sizeInMB) {
@@ -55,6 +53,7 @@ public class BuddyAllocator {
         }
         return allocatedBlocks;
     }
+
     // Metoda za dealokaciju bloka memorije
     public void deallocate(Block block) {
         block.deallocate();  // Postavljanje bloka kao slobodnog

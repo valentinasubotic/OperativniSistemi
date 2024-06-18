@@ -165,8 +165,7 @@ public class Assembler {
                         output.append("-----------\n");
                         output.append("Current Directory: " + currentDirectory + "\n");
                         output.append("Enter command, '..' to go back:\n");
-                            break;
-
+                        break;
                     }
 
                     // Provera da li fajl već postoji u trenutnom direktorijumu
@@ -179,7 +178,6 @@ public class Assembler {
                         if (!allocatedBlocks.isEmpty()) {
                             // Kreiranje fajla u trenutnom direktorijumu
                             currentDirectory.createFile(fileName, fileSizeInMB, allocatedBlocks);
-
                             output.append("---------------------------------\n");
                             output.append("New file created: ").append(fileName).append(" Size: ").append(fileSizeInMB).append("MB\n");
                             output.append("---------------------------------\n");
@@ -201,10 +199,30 @@ public class Assembler {
                     output.append("Invalid command. Usage: touch <filename> <sizeInMB>\n");
                 }
                 break;
-
             case "rm":
+                if (parts.length == 2){
+                    output.append("---------------------------------\n");
+                    for (FileSystemOrganization d : currentDirectory.getSubdirectories()) {
+                        if (parts[1].equals(d.toString())) {
+                            currentDirectory.deleteDirectory(d.getName());
+                            output.append("Directory" + d.toString()+" deleted.\n");
+                            break;
+                        }
+                    }
+                    for (File f : currentDirectory.getFiles()) {
+                        if (parts[1].equals(f.toString())) {
+                            currentDirectory.deleteFile(f.getName());
+                            for (Block block : f.getAllocatedBlocks()) {
+                                buddyAllocator.deallocate(block);
+                            }
+                            output.append("File deleted and memory deallocated.\n");
+                            break;
+                        }
+                    }
+                }else {
+                    output.append("Invalid command. \n");
+                }
                 break;
-
             case "mem":
                 int freeMemory = buddyAllocator.getFreeMemory();
                 output.append("---------------------------------\n");
@@ -216,13 +234,11 @@ public class Assembler {
                 output.append("Exiting OS...");
                 break;
             default:
-                output.append("Nepoznata komanda: ").append(action);
+                output.append("Unknown command: ").append(action);
                 break;
         }
-
         return output.toString();
     }
-
 
     private Block findBlockByAddress(int address) {
         for (Block block : buddyAllocator.getFreeBlocks()) {
@@ -289,8 +305,6 @@ public class Assembler {
         output.append("Slobodna RAM: 4096KB\n");
         return output.toString();
     }
-
-
 
     private String exitOS() {
         System.exit(0);
