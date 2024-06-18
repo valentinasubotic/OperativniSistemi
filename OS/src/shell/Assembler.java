@@ -16,6 +16,7 @@ public class Assembler {
     // Dodajemo promenljivu za čuvanje trenutnog radnog direktorijuma
     FileSystemOrganization currentDirectory;
     ProcessScheduler scheduler = new ProcessScheduler();
+    private BuddyAllocator buddyAllocator;
 
     public Assembler() {
         symbolTable = new HashMap<>();
@@ -25,6 +26,8 @@ public class Assembler {
         // Postavljamo početni direktorijum na radni direktorijum korisnika
         root = fileSystem.getRoot();
         currentDirectory = fileSystem.getRoot();
+        buddyAllocator = new BuddyAllocator(1024);
+
     }
 
     private void initializeOpcodeTable() {
@@ -86,59 +89,105 @@ public class Assembler {
     }
 
     // Metoda za procesiranje korisničkih komandi
-    public String processCommand(String command) {
+    public  String processCommand(String command) {
         String[] parts = command.split("\\s+");
-        String cmd = parts[0];
+        String action = parts[0].toLowerCase();
         StringBuilder output = new StringBuilder();
-        /*
-        switch (cmd) {
+
+        switch (action) {
             case "cd":
                 if (parts.length > 1) {
-                    output.append(changeDirectory(parts[1]));
+                    String directoryName = parts[1];
+                    if (directoryName.equals("..")) {
+                        if (currentDirectory.getParent() != null) {
+                            currentDirectory = currentDirectory.getParent();
+                            output.append("Promenjen direktorijum na: ").append(currentDirectory.getName());
+                        } else {
+                            output.append("Već ste u korenskom direktorijumu.");
+                        }
+                    } else {
+                        FileSystemOrganization subdir = currentDirectory.changeToSubdirectory(directoryName);
+                        if (subdir != null) {
+                            currentDirectory = subdir;
+                            output.append("Promenjen direktorijum na: ").append(currentDirectory.getName());
+                        } else {
+                            output.append("Direktorijum ne postoji: ").append(directoryName);
+                        }
+                    }
                 } else {
                     output.append("Nedostaje argument za cd komandu.");
                 }
                 break;
+                /*
             case "dir":
                 output.append(listDirectory());
                 break;
             case "ps":
                 output.append(listProcesses());
                 break;
+                */
+
             case "mkdir":
-                if (parts.length > 1) {
-                    output.append(createDirectory(parts[1]));
+                if (parts.length == 2) {
+
+                        String directoryName = parts[1];
+                        // Provera da li direktorijum već postoji
+                        boolean directoryExists = false;
+                        for (FileSystemOrganization dir : currentDirectory.getSubdirectories()) {
+                            if (directoryName.equals(dir.getName())) {
+                                directoryExists = true;
+                                break;
+                            }
+                        }
+                        if (directoryExists) {
+                            output.append("Existing folder.\n");
+                        } else {
+                            // Kreiranje novog direktorijuma
+                            FileSystemOrganization newDir = currentDirectory.createDirectory(directoryName);
+                            output.append("New directory created: " + newDir.getName() + "\n");
+                        }
                 } else {
-                    output.append("Nedostaje argument za mkdir komandu.");
+                    output.append("Invalid command.");
                 }
                 break;
-            case "run":
-                if (parts.length > 1) {
-                    output.append(runProcess(parts[1]));
-
+            case "rm":
+                if (parts.length == 2) {
+                    int address = Integer.parseInt(parts[1]);
+                    Block blockToFree = findBlockByAddress(address);
+                    if (blockToFree != null) {
+                        buddyAllocator.deallocate(blockToFree);
+                        output.append("Deallocated block at address ").append(address);
+                    } else {
+                        output.append("No allocated block found at address ").append(address);
+                    }
                 } else {
-                    output.append("Nedostaje argument za run komandu.");
+                    output.append("Invalid command. Usage: rm <address>");
                 }
                 break;
             case "mem":
-                output.append(showMemoryUsage());
+                int availableMemory = buddyAllocator.getTotalMemorySize();
+                output.append("Available memory: ").append(availableMemory).append("MB");
                 break;
             case "exit":
-                output.append(exitOS());
-                break;
-            case "rm":
-                if (parts.length > 1) {
-                    output.append(removeFileOrDirectory(parts[1]));
-                } else {
-                    output.append("Nedostaje argument za rm komandu.");
-                }
+                System.exit(0);
+                output.append("Exiting OS...");
                 break;
             default:
-                output.append("Nepoznata komanda: ").append(cmd);
+                output.append("Nepoznata komanda: ").append(action);
                 break;
         }
-        */
+
         return output.toString();
+    }
+
+
+    private Block findBlockByAddress(int address) {
+        for (Block block : buddyAllocator.getFreeBlocks()) {
+            if (block.getStartAddress() == address && block.isAllocated()) {
+                return block;
+            }
+        }
+        return null;
     }
     /*
     private String changeDirectory(String path) {
@@ -183,7 +232,7 @@ public class Assembler {
             return "Neuspešno pravljenje direktorijuma: " + name;
         }
     }
-    */
+
     private String runProcess(String program) {
         // Ova metoda bi pokretala proces, ovde je samo kao primer
         return "Pokretanje procesa: " + program;
@@ -198,11 +247,14 @@ public class Assembler {
         return output.toString();
     }
 
+
+
     private String exitOS() {
         System.exit(0);
         return "Gašenje OS-a...";
     }
-    /*
+
+
     private String removeFileOrDirectory(String name) {
         File file = new File(currentDirectory, name);
         if (file.exists()) {

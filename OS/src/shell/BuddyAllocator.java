@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BuddyAllocator {
-
+    private int allocatedMemory;
     private final int totalMemorySize;  // Ukupna veličina memorije kojom se upravlja
     private Block root;  // Root blok koji pokriva cijelu memoriju
     private List<Block> freeList;  // Lista slobodnih blokova memorije
@@ -23,6 +23,7 @@ public class BuddyAllocator {
         if (block != null) {
             split(block, sizeInMB);  // Dijeljenje bloka na manje dok ne dobijemo odgovarajuću veličinu
             block.allocate();  // Alokacija bloka
+            allocatedMemory += sizeInMB;
         }
         return block;  // Vraćanje alociranog bloka (ili null ako nije moguće)
     }
@@ -31,6 +32,7 @@ public class BuddyAllocator {
     public void deallocate(Block block) {
         block.deallocate();  // Postavljanje bloka kao slobodnog
         merge(block);  // Pokušaj spajanja bloka sa njegovim buddy blokom
+        allocatedMemory -= block.getSizeInMB(); // Ažurirajte alociranu memoriju
     }
 
     // Privatna metoda za pronalazak slobodnog bloka odgovarajuće veličine
@@ -86,5 +88,8 @@ public class BuddyAllocator {
     // Metoda za dobijanje liste slobodnih blokova
     public List<Block> getFreeBlocks() {
         return new ArrayList<>(freeList);
+    }
+    public int getTotalMemorySize() {
+        return totalMemorySize - allocatedMemory;
     }
 }
