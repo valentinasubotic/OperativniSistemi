@@ -1,11 +1,11 @@
 package shell;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class Assembler {
     private Map<String, Integer> symbolTable;
@@ -118,10 +118,14 @@ public class Assembler {
                     output.append("Nedostaje argument za cd komandu.");
                 }
                 break;
-                /*
             case "dir":
-                output.append(listDirectory());
+                output.append("Subdirectories:\n");
+                for (FileSystemOrganization subdir: currentDirectory.getSubdirectories()){
+                    output.append(subdir.getName() + "\n");
+                }
                 break;
+                /*
+
             case "ps":
                 output.append(listProcesses());
                 break;
@@ -150,23 +154,62 @@ public class Assembler {
                     output.append("Invalid command.");
                 }
                 break;
-            case "rm":
-                if (parts.length == 2) {
-                    int address = Integer.parseInt(parts[1]);
-                    Block blockToFree = findBlockByAddress(address);
-                    if (blockToFree != null) {
-                        buddyAllocator.deallocate(blockToFree);
-                        output.append("Deallocated block at address ").append(address);
+            case "touch":
+                if (parts.length == 3) {
+                    String fileName = parts[1];
+                    int fileSizeInMB = Integer.parseInt(parts[2]);
+
+                    if (!fileName.contains(".")) {
+                        output.append("-----------\n");
+                        output.append("File extension not defined properly.\n");
+                        output.append("-----------\n");
+                        output.append("Current Directory: " + currentDirectory + "\n");
+                        output.append("Enter command, '..' to go back:\n");
+                            break;
+
+                    }
+
+                    // Provera da li fajl već postoji u trenutnom direktorijumu
+                    boolean fileExists = currentDirectory.containsFile(fileName);
+
+                    if (!fileExists) {
+                        // Alokacija memorije za novi fajl
+                        List<Block> allocatedBlocks = buddyAllocator.allocate(fileSizeInMB);
+
+                        if (!allocatedBlocks.isEmpty()) {
+                            // Kreiranje fajla u trenutnom direktorijumu
+                            currentDirectory.createFile(fileName, fileSizeInMB, allocatedBlocks);
+
+                            output.append("---------------------------------\n");
+                            output.append("New file created: ").append(fileName).append(" Size: ").append(fileSizeInMB).append("MB\n");
+                            output.append("---------------------------------\n");
+                            output.append("Current directory: ").append(currentDirectory).append("\n");
+                        } else {
+                            output.append("---------------------------------\n");
+                            output.append("Failed to allocate memory for file: ").append(fileName).append(" Size: ").append(fileSizeInMB).append("MB\n");
+                            output.append("Not enough free memory available.\n");
+                            output.append("---------------------------------\n");
+                            output.append("Current directory: ").append(currentDirectory).append("\n");
+                        }
                     } else {
-                        output.append("No allocated block found at address ").append(address);
+                        output.append("---------------------------------\n");
+                        output.append("File ").append(fileName).append(" already exists.\n");
+                        output.append("---------------------------------\n");
+                        output.append("Current directory: ").append(currentDirectory).append("\n");
                     }
                 } else {
-                    output.append("Invalid command. Usage: rm <address>");
+                    output.append("Invalid command. Usage: touch <filename> <sizeInMB>\n");
                 }
                 break;
+
+            case "rm":
+                break;
+
             case "mem":
-                int availableMemory = buddyAllocator.getTotalMemorySize();
-                output.append("Available memory: ").append(availableMemory).append("MB");
+                int freeMemory = buddyAllocator.getFreeMemory();
+                output.append("---------------------------------\n");
+                output.append("Free memory: ").append(freeMemory).append("MB\n");
+                output.append("---------------------------------\n");
                 break;
             case "exit":
                 System.exit(0);

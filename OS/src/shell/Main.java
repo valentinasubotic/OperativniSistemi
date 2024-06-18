@@ -97,7 +97,6 @@ public class Main extends Application {
 
         bottom.setOnAction(e -> {
 
-
             String command = bottom.getText();
             String result = assembler.processCommand(command);
             top.appendText("> " + command + "\n" + result + "\n");

@@ -16,6 +16,7 @@ public class BuddyAllocator {
         this.freeList = new ArrayList<>();  // Inicijalizacija liste slobodnih blokova
         this.freeList.add(root);  // Dodavanje root bloka u listu slobodnih blokova
     }
+    /*
 
     // Metoda za alokaciju bloka memorije određene veličine
     public Block allocate(int sizeInMB) {
@@ -28,6 +29,32 @@ public class BuddyAllocator {
         return block;  // Vraćanje alociranog bloka (ili null ako nije moguće)
     }
 
+
+     */
+
+    public List<Block> allocate(int sizeInMB) {
+        List<Block> allocatedBlocks = new ArrayList<>();
+        int remainingSize = sizeInMB;
+
+        while (remainingSize > 0) {
+            Block block = findFreeBlock(remainingSize);
+            if (block != null) {
+                split(block, remainingSize);
+                block.allocate();
+                allocatedBlocks.add(block);
+                remainingSize -= block.getSizeInMB();
+                allocatedMemory += block.getSizeInMB();
+            } else {
+                // Dealociraj sve prethodno alocirane blokove u slučaju neuspeha
+                for (Block b : allocatedBlocks) {
+                    b.deallocate();
+                }
+                allocatedBlocks.clear();
+                break;
+            }
+        }
+        return allocatedBlocks;
+    }
     // Metoda za dealokaciju bloka memorije
     public void deallocate(Block block) {
         block.deallocate();  // Postavljanje bloka kao slobodnog
@@ -89,7 +116,14 @@ public class BuddyAllocator {
     public List<Block> getFreeBlocks() {
         return new ArrayList<>(freeList);
     }
-    public int getTotalMemorySize() {
-        return totalMemorySize - allocatedMemory;
+
+    public int getFreeMemory() {
+        int freeMemory = 0;
+        for (Block block : freeList) {
+            if (!block.isAllocated()) {
+                freeMemory += block.getSizeInMB();
+            }
+        }
+        return freeMemory;
     }
 }

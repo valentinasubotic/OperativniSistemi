@@ -107,8 +107,7 @@ public class FileSystemOrganization {
         if (subdir != null) {
             return subdir;
         } else {
-            System.out.println("Directory not found: " + name);
-            return this;
+            return null;
         }
     }
 
@@ -120,12 +119,16 @@ public class FileSystemOrganization {
         }
     }
     // Metoda za brisanje fajla
+
     public void deleteFile(String name) {
         File fileToDelete = getFileByName(name);
         if (fileToDelete != null) {
             files.remove(fileToDelete);
         }
+
     }
+
+
 
     // Metoda za pronalaženje fajla po imenu
     private File getFileByName(String name) {
@@ -135,6 +138,10 @@ public class FileSystemOrganization {
             }
         }
         return null;
+    }
+
+    public boolean containsFile(String name) {
+        return getFileByName(name) != null;
     }
 }
 
