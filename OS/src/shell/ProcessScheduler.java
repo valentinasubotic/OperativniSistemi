@@ -36,26 +36,23 @@ public class ProcessScheduler {
 
     // Metoda koja pokreće raspoređivač procesa
     public void runScheduler() {
-        while (true) { // Beskonačna petlja za stalno pokretanje raspoređivača
-            if (!readyQueue.isEmpty()) { // Proverava da li red spremnih procesa nije prazan
+        while (true) {  // Beskonačna petlja za stalno pokretanje raspoređivača
+            if (!readyQueue.isEmpty()) {    // Provjerava da li red spremnih procesa nije prazan
                 Process currentProcess = readyQueue.poll(); // Uklanja i dobija prvi proces iz reda
                 currentRunningProcess = currentProcess; // Postavlja trenutni proces kao trenutno izvršavani
 
                 while (!currentProcess.isCompleted()) { // Dok se trenutni proces ne završi
-                    currentProcess.execute(1); // Izvršava proces za 1 vremenski jedinicu
-                    System.out.println(currentProcess.getName()); // Ispisuje ime trenutnog procesa
+                    currentProcess.execute(1);  // Izvršava proces za 1 vremenski jedinicu
+                    System.out.println(currentProcess.getName());   // Ispisuje ime trenutnog procesa
 
                     try {
                         Thread.sleep(1000); // Pauzira izvršenje na 1 sekundu da simulira vrijeme izvršenja
                     } catch (InterruptedException e) {
-                        e.printStackTrace(); // Štampa stack trace u slučaju izuzetka
+                        e.printStackTrace();    // Štampa stack trace u slučaju izuzetka
                     }
                 }
 
-                System.out.println(currentProcess.getName() + " DONE"); // Ispisuje da je proces završen
-
-                //completedProcesses.add(currentProcess); // Dodaje završen proces u listu završenih procesa
-                //currentRunningProcess = null; // Postavlja trenutno izvršavani proces na null
+                System.out.println("Process " + currentProcess.getName() + " DONE"); // Ispisuje da je proces završen
 
                 currentRunningProcess.setState(Process.State.DONE);
                 completedProcesses.add(currentRunningProcess);

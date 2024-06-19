@@ -8,7 +8,7 @@ public class IODeviceSCAN {
     private List<Integer> requests;
     // Trenutna pozicija glave uređaja
     private int currentPosition;
-    // Promenljiva koja označava da li se glava uređaja kreće ka gore (true) ili ka dole (false)
+    // Promjenljiva koja označava da li se glava uređaja kreće ka gore (true) ili ka dole (false)
     private boolean movingUp;
 
     // Konstruktor klase
@@ -28,16 +28,16 @@ public class IODeviceSCAN {
 
     // Metoda koja simulira rad uređaja koristeći SCAN algoritam
     public void performScan() {
-        System.out.println("Početak simulacije algoritma SCAN...");
-        // Petlja se izvršava sve dok ima zahteva koji nisu obrađeni
+        System.out.println("Starting SCAN algorithm simulation...");
+        // Petlja se izvršava sve dok ima zahtjeva koji nisu obrađeni
         while (!requests.isEmpty()) {
-            // Proverava da li trenutna pozicija sadrži zahtev i, ako da, obrađuje ga
+            // Provjerava da li trenutna pozicija sadrži zahtjev i, ako da, obrađuje ga
             if (requests.contains(currentPosition)) {
-                System.out.println("Obrađen zahtjev na poziciji: " + currentPosition);
+                System.out.println("Exectued request on position: " + currentPosition);
                 requests.remove(Integer.valueOf(currentPosition));
             }
 
-            // Pomeranje trenutne pozicije glave uređaja u zavisnosti od smjera kretanja
+            // Pomjeranje trenutne pozicije glave uređaja u zavisnosti od smjera kretanja
             if (movingUp) {
                 currentPosition++;
             } else {
@@ -49,6 +49,6 @@ public class IODeviceSCAN {
                 movingUp = !movingUp;
             }
         }
-        System.out.println("Svi zahtjevi su obrađeni.");
+        System.out.println("All requests are executed.");
     }
 }

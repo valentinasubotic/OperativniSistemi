@@ -22,7 +22,7 @@ public class Process {
         this.name = name;
         this.executionTime = executionTime;
         this.memoryRequirement = memoryRequirement;
-        this.state = State.READY; // Inicijalno stanje procesa je READY (spreman)
+        this.state = State.READY;   // Inicijalno stanje procesa je READY (spreman)
     }
 
     // Metoda koja vraća ime procesa
@@ -52,17 +52,17 @@ public class Process {
 
     // Metoda koja simulira izvršenje procesa za određeno vreme
     public void execute(int time) {
-        executionTime -= time; // Smanjuje preostalo vrijeme izvršenja za zadato vreme
+        executionTime -= time;  // Smanjuje preostalo vrijeme izvršenja za zadato vreme
 
         // Ako je preostalo vrijeme izvršenja manje ili jednako nuli, proces je završen
         if (executionTime <= 0) {
             state = State.DONE; // Postavlja stanje procesa na DONE
         } else {
-            state = State.RUNNING; // Inače, proces prelazi u stanje RUNNING
+            state = State.RUNNING;  // Inače, proces prelazi u stanje RUNNING
         }
     }
 
-    // Metoda koja proverava da li je proces završen
+    // Metoda koja provjerava da li je proces završen
     public boolean isCompleted() {
         return state == State.DONE;
     }

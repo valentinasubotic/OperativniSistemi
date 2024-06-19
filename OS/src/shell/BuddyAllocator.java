@@ -17,23 +17,23 @@ public class BuddyAllocator {
     }
 
     public List<Block> allocate(int sizeInMB) {
-        List<Block> allocatedBlocks = new ArrayList<>();  // Kreiramo listu blokova koji će biti alocirani
-        int remainingSize = sizeInMB;  // Postavljamo preostalu veličinu koja treba biti alocirana
+        List<Block> allocatedBlocks = new ArrayList<>();    // Kreiramo listu blokova koji će biti alocirani
+        int remainingSize = sizeInMB;   // Postavljamo preostalu veličinu koja treba biti alocirana
 
         while (remainingSize > 0) {
-            Block block = findFreeBlock(remainingSize);   // Pronalazimo slobodan blok koji je dovoljno velik za preostalu veličinu
+            Block block = findFreeBlock(remainingSize);     // Pronalazimo slobodan blok koji je dovoljno velik za preostalu veličinu
             if (block != null) {
-                split(block, remainingSize);  // Dijelimo blok ako je potrebno da bi odgovarao preostaloj veličini
-                block.allocate(); // Alociramo blok
+                split(block, remainingSize);    // Dijelimo blok ako je potrebno da bi odgovarao preostaloj veličini
+                block.allocate();   // Alociramo blok
                 allocatedBlocks.add(block);
-                remainingSize -= block.getSizeInMB();  // Smanjujemo preostalu veličinu za veličinu upravo alociranog bloka
+                remainingSize -= block.getSizeInMB();   // Smanjujemo preostalu veličinu za veličinu upravo alociranog bloka
                 allocatedMemory += block.getSizeInMB();
             } else {
                 // Ako nema dovoljno velikih slobodnih blokova, dealociramo sve prethodno alocirane blokove
                 for (Block b : allocatedBlocks) {
                     b.deallocate();
                 }
-                allocatedBlocks.clear(); // Praznimo listu alociranih blokova jer alokacija nije uspela
+                allocatedBlocks.clear();    // Praznimo listu alociranih blokova jer alokacija nije uspela
                 break;
             }
         }
@@ -43,8 +43,8 @@ public class BuddyAllocator {
 
     // Metoda za dealokaciju bloka memorije
     public void deallocate(Block block) {
-        block.deallocate();  // Postavljanje bloka kao slobodnog
-        //merge(block);  // Pokušaj spajanja bloka sa njegovim buddy blokom
+        block.deallocate(); // Postavljanje bloka kao slobodnog
+        //merge(block); // Pokušaj spajanja bloka sa njegovim buddy blokom
         allocatedMemory -= block.getSizeInMB(); // Ažurirajte alociranu memoriju
     }
 
@@ -55,14 +55,14 @@ public class BuddyAllocator {
                 return block;
             }
         }
-        return null;  // Nema odgovarajućeg slobodnog bloka
+        return null;    // Nema odgovarajućeg slobodnog bloka
     }
 
     // Privatna metoda za dijeljenje bloka na manje blokove
     private void split(Block block, int sizeInMB) {
         while (block.getSizeInMB() / 2 >= sizeInMB) {
             int newSize = block.getSizeInMB() / 2;
-            Block buddy = new Block(block.getStartAddress() + newSize, newSize);  // Kreiranje buddy bloka
+            Block buddy = new Block(block.getStartAddress() + newSize, newSize);    // Kreiranje buddy bloka
             buddy.setBuddy(block);
             block.setBuddy(buddy);
 
@@ -73,13 +73,13 @@ public class BuddyAllocator {
             parent.setParent(block.getParent());
 
             // Ažuriramo buddy blokove tako da ukazuju na novi parent blok
-            freeList.add(buddy);  // Dodavanje buddy bloka u listu slobodnih blokova
+            freeList.add(buddy);    // Dodavanje buddy bloka u listu slobodnih blokova
             freeList.remove(block);
             freeList.add(parent);
 
-            block = parent;  // Ažuriramo trenutni blok na manji blok
+            block = parent; // Ažuriramo trenutni blok na manji blok
         }
-        freeList.remove(block);  // Uklanjanje dijeljenog bloka iz liste slobodnih blokova
+        freeList.remove(block); // Uklanjanje dijeljenog bloka iz liste slobodnih blokova
     }
 
     // Privatna metoda za spajanje bloka sa njegovim buddy blokom

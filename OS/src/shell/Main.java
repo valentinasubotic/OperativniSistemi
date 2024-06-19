@@ -25,7 +25,6 @@ public class Main extends Application {
     private PipedOutputStream out = new PipedOutputStream();
     private StringBuilder outStringBuilder = new StringBuilder();
     private OutputStream outStream;
-    private int len = 0;
 
     public static void main(String[] args) throws IOException {
         // Testiranje Assembler klase
@@ -33,13 +32,7 @@ public class Main extends Application {
         String sourceCode = "LOAD 10\nADD 20\nSTORE 30\nHALT\n";
         String machineCode = assembler.assemble(sourceCode);
         System.out.println(machineCode);  // Ispis mašinskog koda
-        //    Shell.boot();
         launch(args);
-    }
-
-    public static void clearTerminal() {
-        top.setText("");
-        bottom.clear();
     }
 
     private void addTextToTop() {
@@ -96,44 +89,11 @@ public class Main extends Application {
         });
 
         bottom.setOnAction(e -> {
-
             String command = bottom.getText();
             String result = assembler.processCommand(command);
             top.appendText("> " + command + "\n" + result + "\n");
             bottom.clear();
         });
-
-/*
-        bottom.setOnKeyPressed((e) -> {
-            if (e.getCode().equals(KeyCode.UP)) {
-                String last = ShellCommands.previous();
-                if (!last.equals("")) {
-                    bottom.setText(last);
-                    bottom.positionCaret(last.length());
-                }
-                e.consume();
-            } else if (e.getCode().equals(KeyCode.DOWN)) {
-                String next = ShellCommands.next();
-                if (!next.equals("")) {
-                    bottom.setText(next);
-                    bottom.positionCaret(next.length());
-                }
-                e.consume();
-            }
-        });
-*/
-
-        outStream = new OutputStream() {
-            public void write(int b) throws IOException {
-                outStringBuilder.append((char) b);
-                if (((char) b) == '\n')
-                    addTextToTop();
-            }
-        };
-
-
-
-        //ShellCommands.setOut(outStream);
 
         VBox root = new VBox(15);
         root.setPadding(new Insets(10, 30, 30, 30));

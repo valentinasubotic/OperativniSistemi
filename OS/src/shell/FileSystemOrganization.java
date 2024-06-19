@@ -23,7 +23,7 @@ public class FileSystemOrganization {
     // Dodavanje poddirektorijuma
     public void addDirectory(FileSystemOrganization directory) {
             subdirectories.add(directory);
-        }
+    }
 
     // Dodavanje fajla
     public void addFile(File file) {
@@ -43,7 +43,7 @@ public class FileSystemOrganization {
     // Getter za listu poddirektorijuma
     public List<FileSystemOrganization> getSubdirectories() {
             return subdirectories;
-        }
+    }
 
     // Setter za listu poddirektorijuma
     public void setSubdirectories(List<FileSystemOrganization> subdirectories) {
@@ -53,28 +53,28 @@ public class FileSystemOrganization {
     // Getter za listu fajlova
     public List<File> getFiles() {
             return files;
-        }
+    }
 
     // Setter za listu fajlova
     public void setFiles(List<File> files) {
             this.files = files;
-        }
+    }
 
     // Metoda za prikaz imena direktorijuma
     @Override
     public String toString() {
             return name;
-        }
+    }
 
     // Getter za roditeljski direktorijum
     public FileSystemOrganization getParent() {
             return parent;
-        }
+    }
 
     // Setter za roditeljski direktorijum
     public void setParent(FileSystemOrganization parent) {
             this.parent = parent;
-        }
+    }
 
     // Metoda za kreiranje novog poddirektorijuma
     public FileSystemOrganization createDirectory(String name) {
@@ -87,7 +87,7 @@ public class FileSystemOrganization {
     // Metoda za kreiranje novog fajla
     public void createFile(String name, int sizeInMB, List<Block> allocatedBlocks) {
         File newFile = new File(name, sizeInMB);
-        newFile.setAllocatedBlocks(allocatedBlocks); // Postavljanje alokovanih blokova za fajl
+        newFile.setAllocatedBlocks(allocatedBlocks);    // Postavljanje alokovanih blokova za fajl
         files.add(newFile);
     }
 
@@ -101,7 +101,7 @@ public class FileSystemOrganization {
         return null;
     }
 
-    // Metoda za promenu trenutnog direktorijuma na poddirektorijum
+    // Metoda za promjenu trenutnog direktorijuma na poddirektorijum
     public FileSystemOrganization changeToSubdirectory(String name) {
         FileSystemOrganization subdir = getSubdirectoryByName(name);
         if (subdir != null) {
@@ -118,17 +118,14 @@ public class FileSystemOrganization {
             subdirectories.remove(directoryToDelete);
         }
     }
-    // Metoda za brisanje fajla
 
+    // Metoda za brisanje fajla
     public void deleteFile(String name) {
         File fileToDelete = getFileByName(name);
         if (fileToDelete != null) {
             files.remove(fileToDelete);
         }
-
     }
-
-
 
     // Metoda za pronalaženje fajla po imenu
     private File getFileByName(String name) {
@@ -140,9 +137,8 @@ public class FileSystemOrganization {
         return null;
     }
 
+    // Metoda koja provjerava da li sadrži fajl
     public boolean containsFile(String name) {
         return getFileByName(name) != null;
     }
 }
-
-
