@@ -2,7 +2,6 @@ package shell;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class BuddyAllocator {
     private int allocatedMemory;
     private final int totalMemorySize;  // Ukupna veličina memorije kojom se upravlja
@@ -16,48 +15,36 @@ public class BuddyAllocator {
         this.freeList = new ArrayList<>();  // Inicijalizacija liste slobodnih blokova
         this.freeList.add(root);  // Dodavanje root bloka u listu slobodnih blokova
     }
-    /*
-
-    // Metoda za alokaciju bloka memorije određene veličine (stara metoda prije touch)
-    public Block allocate(int sizeInMB) {
-        Block block = findFreeBlock(sizeInMB);  // Pronalazak slobodnog bloka odgovarajuće veličine
-        if (block != null) {
-            split(block, sizeInMB);  // Dijeljenje bloka na manje dok ne dobijemo odgovarajuću veličinu
-            block.allocate();  // Alokacija bloka
-            allocatedMemory += sizeInMB;
-        }
-        return block;  // Vraćanje alociranog bloka (ili null ako nije moguće)
-    }
-     */
 
     public List<Block> allocate(int sizeInMB) {
-        List<Block> allocatedBlocks = new ArrayList<>();
-        int remainingSize = sizeInMB;
+        List<Block> allocatedBlocks = new ArrayList<>();  // Kreiramo listu blokova koji će biti alocirani
+        int remainingSize = sizeInMB;  // Postavljamo preostalu veličinu koja treba biti alocirana
 
         while (remainingSize > 0) {
-            Block block = findFreeBlock(remainingSize);
+            Block block = findFreeBlock(remainingSize);   // Pronalazimo slobodan blok koji je dovoljno velik za preostalu veličinu
             if (block != null) {
-                split(block, remainingSize);
-                block.allocate();
+                split(block, remainingSize);  // Dijelimo blok ako je potrebno da bi odgovarao preostaloj veličini
+                block.allocate(); // Alociramo blok
                 allocatedBlocks.add(block);
-                remainingSize -= block.getSizeInMB();
+                remainingSize -= block.getSizeInMB();  // Smanjujemo preostalu veličinu za veličinu upravo alociranog bloka
                 allocatedMemory += block.getSizeInMB();
             } else {
-                // Dealociraj sve prethodno alocirane blokove u slučaju neuspeha
+                // Ako nema dovoljno velikih slobodnih blokova, dealociramo sve prethodno alocirane blokove
                 for (Block b : allocatedBlocks) {
                     b.deallocate();
                 }
-                allocatedBlocks.clear();
+                allocatedBlocks.clear(); // Praznimo listu alociranih blokova jer alokacija nije uspela
                 break;
             }
         }
         return allocatedBlocks;
     }
 
+
     // Metoda za dealokaciju bloka memorije
     public void deallocate(Block block) {
         block.deallocate();  // Postavljanje bloka kao slobodnog
-        merge(block);  // Pokušaj spajanja bloka sa njegovim buddy blokom
+        //merge(block);  // Pokušaj spajanja bloka sa njegovim buddy blokom
         allocatedMemory -= block.getSizeInMB(); // Ažurirajte alociranu memoriju
     }
 
@@ -79,7 +66,7 @@ public class BuddyAllocator {
             buddy.setBuddy(block);
             block.setBuddy(buddy);
 
-            // Kreiramo novi blok sa smanjenom veličinom umesto da menjamo postojeći
+            // Kreiramo novi blok sa smanjenom veličinom umjesto da mijenjamo postojeći
             Block parent = new Block(block.getStartAddress(), newSize);
             parent.setBuddy(buddy);
             buddy.setParent(parent);
@@ -96,7 +83,6 @@ public class BuddyAllocator {
     }
 
     // Privatna metoda za spajanje bloka sa njegovim buddy blokom
-
     private void merge(Block block) {
         Block buddy = block.getBuddy();
         if (buddy != null && !buddy.isAllocated()) {
@@ -118,18 +104,18 @@ public class BuddyAllocator {
         }
     }
 
-
-
-
     // Metoda za dobijanje liste slobodnih blokova
     public List<Block> getFreeBlocks() {
         return new ArrayList<>(freeList);
     }
 
+    // Metoda za izračunavanje ukupne slobodne memorije u MB.
     public int getFreeMemory() {
         int freeMemory = 0;
         for (Block block : freeList) {
+            // Ako blok nije alociran (tj. slobodan je)
             if (!block.isAllocated()) {
+                // Dodajemo veličinu slobodnog bloka ukupnoj slobodnoj memoriji
                 freeMemory += block.getSizeInMB();
             }
         }

@@ -1,6 +1,4 @@
 package shell;
-
-
 public class FileSystem {
     // Korijenski organizacioni sistem fajlova
     private FileSystemOrganization root;
@@ -9,7 +7,6 @@ public class FileSystem {
     public FileSystem() {
         root = new FileSystemOrganization("Root");
     }
-
     // Metoda koja vraća korijenski organizacioni sistem fajlova
     public FileSystemOrganization getRoot() {
         return root;

@@ -37,18 +37,17 @@ public class File {
         this.sizeInMB = sizeInMB;
     }
 
-    // Getter za listu alokovanih blokova
+    // Getter za listu alociranh blokova
     public List<Block> getAllocatedBlocks() {
         return allocatedBlocks;
     }
 
-    // Setter za listu alokovanih blokova
+    // Setter za listu alociranih blokova
     public void setAllocatedBlocks(List<Block> allocatedBlocks)
     {
         this.allocatedBlocks = allocatedBlocks;
     }
 
-    // Metoda za prikaz imena fajla
     @Override
     public String toString() {
         return name;

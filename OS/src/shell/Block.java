@@ -11,8 +11,8 @@ public class Block {
         this.startAddress = startAddress;
         this.sizeInMB = sizeInMB;
         this.allocated = false;  // Blok je inicijalno slobodan
-        this.buddy = null;
-        this.parent = null;
+        this.buddy = null; // Buddy je inicijalno null
+        this.parent = null; // Parent je inicijalno null
     }
 
     // Getter za početnu adresu bloka
