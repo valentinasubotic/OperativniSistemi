@@ -141,8 +141,6 @@ public class Assembler {
                     output.append(subdir.getName() + "\n");
                 }
                 break;
-
-
             case "ps":
                 List<Process> processesInQueue = scheduler.getProcessesInQueue();
 
