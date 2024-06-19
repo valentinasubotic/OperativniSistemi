@@ -9,19 +9,16 @@ import java.util.Map;
 import java.util.List;
 
 public class Assembler {
+    // Tablica simbola i opcode tablica
     private Map<String, Integer> symbolTable;
     private Map<String, String> opcodeTable;
-
     FileSystem fileSystem;
     FileSystemOrganization root;
-    // Dodajemo promenljivu za čuvanje trenutnog radnog direktorijuma
+    // Dodajemo promjenljivu za čuvanje trenutnog radnog direktorijuma
     FileSystemOrganization currentDirectory;
     ProcessScheduler scheduler = new ProcessScheduler();
     private BuddyAllocator buddyAllocator;
     static Memory memory = null;
-    private static int totalMemory = 2048;
-
-
 
     public Assembler() {
         symbolTable = new HashMap<>();
@@ -32,23 +29,19 @@ public class Assembler {
         root = fileSystem.getRoot();
         currentDirectory = fileSystem.getRoot();
         buddyAllocator = new BuddyAllocator(1024);
-
-
-
-          memory = new Memory(buddyAllocator);
+        memory = new Memory(buddyAllocator);
 
         try {
+            //Pokrećemo procese
             Thread schedulerThread = new Thread(() -> scheduler.runScheduler());
             schedulerThread.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
+    // Inicijalizacija opcode tablice za jednoadresne instrukcije
     private void initializeOpcodeTable() {
-        // Inicijalizacija opcode tablice za jednoadresne instrukcije
         opcodeTable.put("LOAD", "01");
         opcodeTable.put("STORE", "02");
         opcodeTable.put("ADD", "03");
@@ -59,6 +52,7 @@ public class Assembler {
         opcodeTable.put("HALT", "FF");  // Halt
     }
 
+    // Metoda za sastavljanje mašinskog koda iz izvornog koda
     public String assemble(String sourceCode) {
         String[] lines = sourceCode.split("\n");
         StringBuilder machineCode = new StringBuilder();
@@ -75,9 +69,8 @@ public class Assembler {
 
             String opcode = opcodeTable.get(instruction);
             if (opcode == null) {
-                throw new IllegalArgumentException("Nepoznata instrukcija: " + instruction);
+                throw new IllegalArgumentException("Unknown instruction: " + instruction);
             }
-
             if (instruction.equals("HALT")) {
                 machineCode.append(opcode).append("\n");
             } else {
@@ -85,15 +78,14 @@ public class Assembler {
                 machineCode.append(opcode).append(String.format("%02X", addressValue)).append("\n");
             }
         }
-
         return machineCode.toString();
     }
 
+    // Metoda za rešavanje adresa
     private Integer resolveAddress(String address) {
         if (address.isEmpty()) {
             return 0;
         }
-
         try {
             return Integer.parseInt(address);
         } catch (NumberFormatException e) {
@@ -118,21 +110,26 @@ public class Assembler {
                     if (directoryName.equals("..")) {
                         if (currentDirectory.getParent() != null) {
                             currentDirectory = currentDirectory.getParent();
-                            output.append("Promenjen direktorijum na: ").append(currentDirectory.getName());
+                            output.append("---------------------------------\n");
+                            output.append("Directory changed to: ").append(currentDirectory.getName());
                         } else {
-                            output.append("Već ste u korenskom direktorijumu.");
+                            output.append("---------------------------------\n");
+                            output.append("Already in root directory\n");
                         }
                     } else {
                         FileSystemOrganization subdir = currentDirectory.changeToSubdirectory(directoryName);
                         if (subdir != null) {
                             currentDirectory = subdir;
-                            output.append("Promenjen direktorijum na: ").append(currentDirectory.getName());
+                            output.append("---------------------------------\n");
+                            output.append("Directory changed to: ").append(currentDirectory.getName());
                         } else {
-                            output.append("Direktorijum ne postoji: ").append(directoryName);
+                            output.append("---------------------------------\n");
+                            output.append("Directory ").append(directoryName + " doesn't exist.");
                         }
                     }
                 } else {
-                    output.append("Nedostaje argument za cd komandu.");
+                    output.append("---------------------------------\n");
+                    output.append("Invalid command.");
                 }
                 break;
             case "dir":
@@ -143,14 +140,11 @@ public class Assembler {
                 break;
             case "ps":
                 List<Process> processesInQueue = scheduler.getProcessesInQueue();
-
-                output.append("-----------\n");
-
+                output.append("---------------------------------\n");
                 for (Process process : processesInQueue) {
                     output.append("Process " + process.getName() + " in state: " + process.getState()
                             + ", " + process.getExecutionTime() + "s\n");
                 }
-
                 Process currentProcess = scheduler.getCurrentRunningProcess();
 
                 if (currentProcess != null) {
@@ -164,23 +158,20 @@ public class Assembler {
                     output.append("Process " + process.getName() + " in state: " + process.getState()
                             + ", " + process.getExecutionTime() + "s\n");
                 }
-
-                output.append("-----------\n");
+                output.append("---------------------------------\n");
                 break;
-
             case "run":
                 if (parts.length == 3) {
-
                     String processName = parts[1];
                     int memorySize = Integer.parseInt(parts[2]);
-
                     boolean processExists = false;
+
                     for (Memory.MemorySegment segment : memory.getMemorySegments()) {
                         Process existingProcess = segment.getProcess();
                         if (existingProcess != null && existingProcess.getName().equals(processName)) {
                             processExists = true;
-                            System.out.println(
-                                    "A process with name " + processName + " is already in memory. Ignored.");
+                            output.append("---------------------------------\n");
+                            output.append("A process with name " + processName + " is already in memory. Ignored.");
                             break;
                         }
                     }
@@ -193,57 +184,48 @@ public class Assembler {
                         for (Memory.MemorySegment segment : allocatedSegments) {
                             segment.setProcess(p);
                         }
-
-                        output.append("-----------\n");
-
+                        output.append("---------------------------------\n");
                         if (allocatedSegments.size() > 0) {
                             scheduler.addProcess(p);
-
                             output.append("Process " + p.getName() + ", " + p.getState() + ", time: "
                                     + p.getExecutionTime() + "s\n");
                         } else {
                             output.append("Not enough memory for process.\n");
                         }
-
-                        output.append("-----------\n");
+                        output.append("---------------------------------\n");
                     } else {
-                        System.out.println("Not enough available memory segments to allocate for the process.");
+                        System.out.println("Not enough available memory to allocate for the process.");
                     }
 
-
-                    System.out.println("Memory allocation status:");
                     List<Memory.MemorySegment> memorySegments = memory.getMemorySegments();
 
                     for (Memory.MemorySegment segment : memorySegments) {
                         Process process = segment.getProcess();
                         processName = (process != null) ? process.getName() : "Unallocated";
-                        System.out
-                                .println("Buddy block  Size: " + segment.getSize() + " Process: " + processName);
+                        System.out.println("Process: \n" + processName);
                     }
                 } else {
-                    output.append("Invalid command format.");
+                    output.append("Invalid command.");
                 }
                 break;
-
             case "mkdir":
                 if (parts.length == 2) {
-
-                        String directoryName = parts[1];
-                        // Provera da li direktorijum već postoji
-                        boolean directoryExists = false;
-                        for (FileSystemOrganization dir : currentDirectory.getSubdirectories()) {
-                            if (directoryName.equals(dir.getName())) {
-                                directoryExists = true;
-                                break;
-                            }
+                    String directoryName = parts[1];
+                    // Provera da li direktorijum već postoji
+                    boolean directoryExists = false;
+                    for (FileSystemOrganization dir : currentDirectory.getSubdirectories()) {
+                        if (directoryName.equals(dir.getName())) {
+                            directoryExists = true;
+                            break;
                         }
-                        if (directoryExists) {
-                            output.append("Existing folder.\n");
-                        } else {
-                            // Kreiranje novog direktorijuma
-                            FileSystemOrganization newDir = currentDirectory.createDirectory(directoryName);
-                            output.append("New directory created: " + newDir.getName() + "\n");
-                        }
+                    }
+                    if (directoryExists) {
+                        output.append("Existing folder.\n");
+                    } else {
+                        // Kreiranje novog direktorijuma
+                        FileSystemOrganization newDir = currentDirectory.createDirectory(directoryName);
+                        output.append("New directory created: " + newDir.getName() + "\n");
+                    }
                 } else {
                     output.append("Invalid command.");
                 }
@@ -254,11 +236,10 @@ public class Assembler {
                     int fileSizeInMB = Integer.parseInt(parts[2]);
 
                     if (!fileName.contains(".")) {
-                        output.append("-----------\n");
+                        output.append("---------------------------------\n");
                         output.append("File extension not defined properly.\n");
-                        output.append("-----------\n");
+                        output.append("---------------------------------\n");
                         output.append("Current Directory: " + currentDirectory + "\n");
-                        output.append("Enter command, '..' to go back:\n");
                         break;
                     }
 
@@ -273,12 +254,12 @@ public class Assembler {
                             // Kreiranje fajla u trenutnom direktorijumu
                             currentDirectory.createFile(fileName, fileSizeInMB, allocatedBlocks);
                             output.append("---------------------------------\n");
-                            output.append("New file created: ").append(fileName).append(" Size: ").append(fileSizeInMB).append("MB\n");
+                            output.append("New file created: ").append(fileName + "\n");
                             output.append("---------------------------------\n");
                             output.append("Current directory: ").append(currentDirectory).append("\n");
                         } else {
                             output.append("---------------------------------\n");
-                            output.append("Failed to allocate memory for file: ").append(fileName).append(" Size: ").append(fileSizeInMB).append("MB\n");
+                            output.append("Failed to allocate memory for file: ").append(fileName + "\n");
                             output.append("Not enough free memory available.\n");
                             output.append("---------------------------------\n");
                             output.append("Current directory: ").append(currentDirectory).append("\n");
@@ -318,6 +299,7 @@ public class Assembler {
                 }
                 break;
             case "mem":
+                // Ispisuje slobodnu memoriju
                 int freeMemory = buddyAllocator.getFreeMemory();
                 output.append("---------------------------------\n");
                 output.append("Free memory: ").append(freeMemory).append("MB\n");
@@ -328,103 +310,9 @@ public class Assembler {
                 output.append("Exiting OS...");
                 break;
             default:
-                output.append("Unknown command: ").append(action);
+                output.append("Unknown command: ").append(action + "\n");
                 break;
         }
         return output.toString();
     }
-
-    private Block findBlockByAddress(int address) {
-        for (Block block : buddyAllocator.getFreeBlocks()) {
-            if (block.getStartAddress() == address && block.isAllocated()) {
-                return block;
-            }
-        }
-        return null;
-    }
-    /*
-    private String changeDirectory(String path) {
-        File dir = new File(currentDirectory, path);
-        if (dir.exists() && dir.isDirectory()) {
-            currentDirectory = dir.getAbsolutePath();
-            return "Promenjen direktorijum na: " + currentDirectory;
-        } else {
-            return "Direktorijum ne postoji: " + path;
-        }
-    }
-    */
-    /*
-    private String listDirectory() {
-        File dir = new File(currentDirectory);
-        File[] files = dir.listFiles();
-        StringBuilder output = new StringBuilder();
-
-        if (files != null) {
-            for (File file : files) {
-                output.append(file.getName()).append("\n");
-            }
-        }
-        return output.toString();
-    }
-
-    private String listProcesses() {
-        // Ispisivanje lažnih informacija o procesima kao primer
-        StringBuilder output = new StringBuilder();
-        //  output.append("PID\tInstrukcija\tRAM\tIzvršene Instrukcije\n");
-        //  output.append("1\tLOAD\t\t1024KB\t100\n");
-        //  output.append("2\tADD\t\t512KB\t50\n");
-        //  output.append("3\tSTORE\t\t2048KB\t200\n");
-        return output.toString();
-    }
-
-    private String createDirectory(String name) {
-        File dir = new File(currentDirectory, name);
-        if (dir.mkdir()) {
-            return "Direktorijum je napravljen: " + name;
-        } else {
-            return "Neuspešno pravljenje direktorijuma: " + name;
-        }
-    }
-
-    private String runProcess(String program) {
-        // Ova metoda bi pokretala proces, ovde je samo kao primer
-        return "Pokretanje procesa: " + program;
-    }
-
-    private String showMemoryUsage() {
-        // Ispisivanje lažnih podataka o RAM memoriji kao primer
-        StringBuilder output = new StringBuilder();
-        output.append("Ukupna RAM: 8192KB\n");
-        output.append("Zauzeta RAM: 4096KB\n");
-        output.append("Slobodna RAM: 4096KB\n");
-        return output.toString();
-    }
-
-    private String exitOS() {
-        System.exit(0);
-        return "Gašenje OS-a...";
-    }
-
-
-    private String removeFileOrDirectory(String name) {
-        File file = new File(currentDirectory, name);
-        if (file.exists()) {
-            try {
-                if (file.isDirectory()) {
-                    Files.walk(Paths.get(file.getAbsolutePath()))
-                            .map(java.nio.file.Path::toFile)
-                            .sorted((o1, o2) -> -o1.compareTo(o2))
-                            .forEach(File::delete);
-                } else {
-                    file.delete();
-                }
-                return "Uspješno uklonjen: " + name;
-            } catch (IOException e) {
-                return "Greška pri uklanjanju: " + name;
-            }
-        } else {
-            return "Fajl ili direktorijum ne postoji: " + name;
-        }
-    }
-     */
 }
