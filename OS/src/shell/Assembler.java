@@ -134,9 +134,11 @@ public class Assembler {
                 break;
             case "dir":
                 output.append("Subdirectories:\n");
+                output.append("---------------------------------\n");
                 for (FileSystemOrganization subdir: currentDirectory.getSubdirectories()){
                     output.append(subdir.getName() + "\n");
                 }
+                output.append("---------------------------------\n");
                 break;
             case "ps":
                 List<Process> processesInQueue = scheduler.getProcessesInQueue();
@@ -220,10 +222,12 @@ public class Assembler {
                         }
                     }
                     if (directoryExists) {
-                        output.append("Existing folder.\n");
+                        output.append("---------------------------------\n");
+                        output.append("Existing directory.\n");
                     } else {
                         // Kreiranje novog direktorijuma
                         FileSystemOrganization newDir = currentDirectory.createDirectory(directoryName);
+                        output.append("---------------------------------\n");
                         output.append("New directory created: " + newDir.getName() + "\n");
                     }
                 } else {
