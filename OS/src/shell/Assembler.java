@@ -280,7 +280,7 @@ public class Assembler {
                     for (FileSystemOrganization d : currentDirectory.getSubdirectories()) {
                         if (parts[1].equals(d.toString())) {
                             currentDirectory.deleteDirectory(d.getName());
-                            output.append("Directory" + d.toString()+" deleted.\n");
+                            output.append("Directory " + d.toString()+" deleted.\n");
                             break;
                         }
                     }
