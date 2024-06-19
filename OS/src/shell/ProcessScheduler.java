@@ -54,8 +54,12 @@ public class ProcessScheduler {
 
                 System.out.println(currentProcess.getName() + " DONE"); // Ispisuje da je proces završen
 
-                completedProcesses.add(currentProcess); // Dodaje završen proces u listu završenih procesa
-                currentRunningProcess = null; // Postavlja trenutno izvršavani proces na null
+                //completedProcesses.add(currentProcess); // Dodaje završen proces u listu završenih procesa
+                //currentRunningProcess = null; // Postavlja trenutno izvršavani proces na null
+
+                currentRunningProcess.setState(Process.State.DONE);
+                completedProcesses.add(currentRunningProcess);
+                currentRunningProcess = null;
             }
         }
     }

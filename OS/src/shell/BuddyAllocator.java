@@ -96,20 +96,30 @@ public class BuddyAllocator {
     }
 
     // Privatna metoda za spajanje bloka sa njegovim buddy blokom
+
     private void merge(Block block) {
         Block buddy = block.getBuddy();
         if (buddy != null && !buddy.isAllocated()) {
+            // Pronađi roditeljski blok
             Block parent = block.getParent();
             if (parent != null) {
-                freeList.remove(buddy);  // Uklanjanje buddy bloka iz liste slobodnih blokova
-                freeList.add(parent);  // Dodavanje roditeljskog bloka u listu slobodnih blokova
-                parent.setBuddy(null);  // Resetovanje buddy odnosa
-                merge(parent);  // Rekurzivno spajanje roditeljskog bloka
+                // Ukloni buddy blok iz liste slobodnih blokova
+                freeList.remove(buddy);
+                // Dodaj roditeljski blok u listu slobodnih blokova
+                freeList.add(parent);
+                // Resetuj buddy odnos
+                parent.setBuddy(null);
+                // Rekurzivno spajanje roditeljskog bloka
+                merge(parent);
             }
         } else {
-            freeList.add(block);  // Dodavanje bloka u listu slobodnih blokova ako se ne može spojiti
+            // Dodaj blok nazad u listu slobodnih blokova ako se ne može spojiti
+            freeList.add(block);
         }
     }
+
+
+
 
     // Metoda za dobijanje liste slobodnih blokova
     public List<Block> getFreeBlocks() {

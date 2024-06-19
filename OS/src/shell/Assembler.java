@@ -3,6 +3,7 @@ package shell;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -17,6 +18,10 @@ public class Assembler {
     FileSystemOrganization currentDirectory;
     ProcessScheduler scheduler = new ProcessScheduler();
     private BuddyAllocator buddyAllocator;
+    static Memory memory = null;
+    private static int totalMemory = 2048;
+
+
 
     public Assembler() {
         symbolTable = new HashMap<>();
@@ -27,6 +32,18 @@ public class Assembler {
         root = fileSystem.getRoot();
         currentDirectory = fileSystem.getRoot();
         buddyAllocator = new BuddyAllocator(1024);
+
+
+
+          memory = new Memory(buddyAllocator);
+
+        try {
+            Thread schedulerThread = new Thread(() -> scheduler.runScheduler());
+            schedulerThread.start();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
@@ -124,12 +141,91 @@ public class Assembler {
                     output.append(subdir.getName() + "\n");
                 }
                 break;
-                /*
+
 
             case "ps":
-                output.append(listProcesses());
+                List<Process> processesInQueue = scheduler.getProcessesInQueue();
+
+                output.append("-----------\n");
+
+                for (Process process : processesInQueue) {
+                    output.append("Process " + process.getName() + " in state: " + process.getState()
+                            + ", " + process.getExecutionTime() + "s\n");
+                }
+
+                Process currentProcess = scheduler.getCurrentRunningProcess();
+
+                if (currentProcess != null) {
+                    output.append("Process " + currentProcess.getName() + " in state: "
+                            + currentProcess.getState() + ", " + currentProcess.getExecutionTime() + "s\n");
+                }
+
+                List<Process> processesFinished = scheduler.getCompletedProcesses();
+
+                for (Process process : processesFinished) {
+                    output.append("Process " + process.getName() + " in state: " + process.getState()
+                            + ", " + process.getExecutionTime() + "s\n");
+                }
+
+                output.append("-----------\n");
                 break;
-                */
+
+            case "run":
+                if (parts.length == 3) {
+
+                    String processName = parts[1];
+                    int memorySize = Integer.parseInt(parts[2]);
+
+                    boolean processExists = false;
+                    for (Memory.MemorySegment segment : memory.getMemorySegments()) {
+                        Process existingProcess = segment.getProcess();
+                        if (existingProcess != null && existingProcess.getName().equals(processName)) {
+                            processExists = true;
+                            System.out.println(
+                                    "A process with name " + processName + " is already in memory. Ignored.");
+                            break;
+                        }
+                    }
+
+                    if (memory.getNumAvailableSegments() > 0 && !processExists) {
+                        Process p = new Process(processName, 10, memorySize);
+
+                        List<Memory.MemorySegment> allocatedSegments = memory.allocateMemory(p, memorySize);
+
+                        for (Memory.MemorySegment segment : allocatedSegments) {
+                            segment.setProcess(p);
+                        }
+
+                        output.append("-----------\n");
+
+                        if (allocatedSegments.size() > 0) {
+                            scheduler.addProcess(p);
+
+                            output.append("Process " + p.getName() + ", " + p.getState() + ", time: "
+                                    + p.getExecutionTime() + "s\n");
+                        } else {
+                            output.append("Not enough memory for process.\n");
+                        }
+
+                        output.append("-----------\n");
+                    } else {
+                        System.out.println("Not enough available memory segments to allocate for the process.");
+                    }
+
+
+                    System.out.println("Memory allocation status:");
+                    List<Memory.MemorySegment> memorySegments = memory.getMemorySegments();
+
+                    for (Memory.MemorySegment segment : memorySegments) {
+                        Process process = segment.getProcess();
+                        processName = (process != null) ? process.getName() : "Unallocated";
+                        System.out
+                                .println("Buddy block  Size: " + segment.getSize() + " Process: " + processName);
+                    }
+                } else {
+                    output.append("Invalid command format.");
+                }
+                break;
 
             case "mkdir":
                 if (parts.length == 2) {
