@@ -167,6 +167,7 @@ public class Assembler {
                     String processName = parts[1];
                     int memorySize = Integer.parseInt(parts[2]);
                     boolean processExists = false;
+                    boolean enoughMemory = true;
 
                     for (Memory.MemorySegment segment : memory.getMemorySegments()) {
                         Process existingProcess = segment.getProcess();
@@ -192,20 +193,24 @@ public class Assembler {
                             output.append("Process " + p.getName() + ", " + p.getState() + ", time: "
                                     + p.getExecutionTime() + "s\n");
                         } else {
-                            output.append("Not enough memory for process.\n");
+                                enoughMemory = false;
+                                output.append("Not enough memory for process.\n");
                         }
                         output.append("---------------------------------\n");
                     } else {
+                        if(!enoughMemory)
                         System.out.println("Not enough available memory to allocate for the process.");
                     }
 
                     List<Memory.MemorySegment> memorySegments = memory.getMemorySegments();
 
+                    System.out.println("Process list: ");
                     for (Memory.MemorySegment segment : memorySegments) {
                         Process process = segment.getProcess();
                         processName = (process != null) ? process.getName() : "Unallocated";
-                        System.out.println("Process: \n" + processName);
+                        System.out.println(processName);
                     }
+                    System.out.println("--------------------");
                 } else {
                     output.append("Invalid command.");
                 }
