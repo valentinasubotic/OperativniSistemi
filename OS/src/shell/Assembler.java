@@ -86,7 +86,6 @@ public class Assembler {
     }
 
     // Metoda za rešavanje adresa
-
     private Integer resolveAddress(String address) {
         if (address.isEmpty()) {
             return 0;
@@ -393,5 +392,4 @@ public class Assembler {
             }
         }
     }
-
 }
