@@ -61,6 +61,7 @@ public class ProcessScheduler {
         }
     }
 
+
     // Metoda koja vraća listu završenih procesa
     public List<Process> getCompletedProcesses() {
         return completedProcesses;

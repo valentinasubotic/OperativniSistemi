@@ -33,7 +33,7 @@ public class Main extends Application {
         String machineCode = assembler.assemble(sourceCode);
         System.out.println(machineCode);  // Ispis mašinskog koda
         launch(args);
-    }   aq  A
+    }
 
     private void addTextToTop() {
         if (outStringBuilder.length() > 0) {

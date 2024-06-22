@@ -1,6 +1,6 @@
 package shell;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,6 +20,9 @@ public class Assembler {
     private BuddyAllocator buddyAllocator;
     static Memory memory = null;
 
+
+    private Map<String, String> loadedFiles;
+
     public Assembler() {
         symbolTable = new HashMap<>();
         opcodeTable = new HashMap<>();
@@ -30,6 +33,7 @@ public class Assembler {
         currentDirectory = fileSystem.getRoot();
         buddyAllocator = new BuddyAllocator(1024);
         memory = new Memory(buddyAllocator);
+        this.loadedFiles = new HashMap<>();
 
         try {
             //Pokrećemo procese
@@ -82,6 +86,7 @@ public class Assembler {
     }
 
     // Metoda za rešavanje adresa
+  /*
     private Integer resolveAddress(String address) {
         if (address.isEmpty()) {
             return 0;
@@ -94,6 +99,22 @@ public class Assembler {
                 symbolTable.put(address, symbolTable.size() + 1);  // Jednostavna implementacija tablice simbola
             }
             return symbolTable.get(address);
+        }
+    }
+
+   */
+    private Integer resolveAddress(String address) {
+        switch (address.toUpperCase()) {
+            case "R1":
+                return Integer.parseInt(Constants.R1, 2);
+            case "R2":
+                return Integer.parseInt(Constants.R2, 2);
+            case "R3":
+                return Integer.parseInt(Constants.R3, 2);
+            case "R4":
+                return Integer.parseInt(Constants.R4, 2);
+            default:
+                throw new IllegalArgumentException("Unknown address: " + address);
         }
     }
 
@@ -215,6 +236,30 @@ public class Assembler {
                     output.append("Invalid command.");
                 }
                 break;
+            case "load":
+                if (parts.length == 2) {
+                    String fileName = parts[1];
+                    String fileContent = loadFile(fileName);
+                    if (fileContent != null) {
+                        loadedFiles.put(fileName, fileContent);
+                        output.append("File ").append(fileName).append(" successfully loaded.\n");
+
+                        // Kreiranje procesa i dodavanje u scheduler
+                        Process process = new Process(fileName,10 ,getMemoryRequirementFromFileContent(fileContent));
+
+
+                    } else {
+                        output.append("Failed to load file ").append(fileName).append(".\n");
+                    }
+                } else {
+                    output.append("Invalid command. Usage: load <filename>\n");
+                }
+                break;
+
+            case "exe":
+
+                output.append("Execution of loaded processes started.\n");
+                break;
             case "mkdir":
                 if (parts.length == 2) {
                     String directoryName = parts[1];
@@ -324,4 +369,45 @@ public class Assembler {
         }
         return output.toString();
     }
+    private String loadFile(String fileName) {
+
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("Current directory: " + currentDir);
+
+        String relativePath = currentDir + "\\Programs\\" + fileName;
+
+        System.out.println(relativePath);
+        try (BufferedReader reader = new BufferedReader(new FileReader(relativePath))) {
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            return content.toString();
+        } catch (IOException e) {
+            return null;
+        }
+
+    }
+    private int getMemoryRequirementFromFileContent(String content) {
+
+        return 10; // Npr, 10MB
+    }
+    public void executeLoadedProcesses() {
+        for (Map.Entry<String, String> entry : loadedFiles.entrySet()) {
+            String fileName = entry.getKey();
+            String fileContent = entry.getValue();
+            String machineCode = assemble(fileContent); // Sastavljanje mašinskog koda
+            if (machineCode != null) {
+                String outputFileName = fileName.replace(".asm", ".txt");
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+                    writer.write(machineCode);
+                    System.out.println("Output written to " + outputFileName);
+                } catch (IOException e) {
+                    System.err.println("Error writing to " + outputFileName);
+                }
+            }
+        }
+    }
+
 }
