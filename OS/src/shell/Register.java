@@ -1,13 +1,11 @@
 package shell;
 
 public class Register {
-    public final String name;
-    public final String address;
-    public int value;
+    public final String name; // Ime registra (opcionalno za prikaz)
+    public int value; // Vrijednost registra
 
-    public Register(String name, String address, int value){
+    public Register(String name, int value){
         this.name = name;
-        this.address = address;
         this.value = value;
     }
 }
