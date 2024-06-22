@@ -86,7 +86,7 @@ public class Assembler {
     }
 
     // Metoda za rešavanje adresa
-  /*
+
     private Integer resolveAddress(String address) {
         if (address.isEmpty()) {
             return 0;
@@ -99,22 +99,6 @@ public class Assembler {
                 symbolTable.put(address, symbolTable.size() + 1);  // Jednostavna implementacija tablice simbola
             }
             return symbolTable.get(address);
-        }
-    }
-
-   */
-    private Integer resolveAddress(String address) {
-        switch (address.toUpperCase()) {
-            case "R1":
-                return Integer.parseInt(Constants.R1, 2);
-            case "R2":
-                return Integer.parseInt(Constants.R2, 2);
-            case "R3":
-                return Integer.parseInt(Constants.R3, 2);
-            case "R4":
-                return Integer.parseInt(Constants.R4, 2);
-            default:
-                throw new IllegalArgumentException("Unknown address: " + address);
         }
     }
 
