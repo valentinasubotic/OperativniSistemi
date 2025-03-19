@@ -1,4 +1,4 @@
-# Simularor operativnog sistema
+# Simulator operativnog sistema
 
 ## Opis
 
